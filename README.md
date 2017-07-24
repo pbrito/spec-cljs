@@ -1,10 +1,10 @@
-# hello-browser
+# hello
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojurescrip intro.
 
 ## Usage
 
-FIXME
+[Generator writing guide](doc/intro.md)
 
 ## License
 
