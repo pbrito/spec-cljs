@@ -148,7 +148,7 @@ Generate data from specs:
 
 ## nn
 
-[video](https://www.youtube.com/watch?v=W6crrbF7s2s)
+Clojure spec Screencast: Testing[video ClojureTV](https://www.youtube.com/watch?v=W6crrbF7s2s)
 
 ```clojure
 (require '[clojure.string :as str])            
@@ -250,7 +250,7 @@ modify the return
   {:total 1, :check-passed 1}
 ```
 But this does not work in clojure you would need:
-```
+``` clojure
 (s/fdef my-index-of
         :args (s/cat :source string?
                      :search (s/alt :string string?
