@@ -175,7 +175,7 @@ Clojure spec Screencast: Testing[video ClojureTV](https://www.youtube.com/watch?
 
 ```
 Improve definition using alt in ":search"
-```clojure
+``` clojure
 
 ;; alt in args
 (s/fdef my-index-of
@@ -275,7 +275,7 @@ true
 ```
 
 
-```` clojure
+``` clojure
 (defn which-came-first
   "Returns :chicken of :egg, depending on which string appears
   first in s, starting from position from."
