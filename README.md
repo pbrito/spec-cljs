@@ -4,7 +4,7 @@ A Clojurescrip intro.
 
 ## Usage
 
-[Generator writing guide](doc/intro.md)
+[Introduction to spec with clojurescrip](doc/intro.md)
 
 ## License
 
