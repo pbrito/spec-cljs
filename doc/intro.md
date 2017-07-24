@@ -340,7 +340,7 @@ from a spec presentation [video](https://www.youtube.com/watch?v=S43Y9a876K8&t=7
 ```
 
 
-```
+``` clojure
 ;; here's how we might spec a user
 (def email-regex #"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}")
 (s/def ::user/email (s/and string? #(string? (re-matches email-regex %))))
@@ -360,7 +360,7 @@ from a spec presentation [video](https://www.youtube.com/watch?v=S43Y9a876K8&t=7
 
 ```
 But cant generate a exemple:
-```
+``` clojure
 (gen/generate (s/gen ::user-spec))
 ;=>#error {:message "Couldn't satisfy such-that predicate after 100 tries.", ...
 ```
