@@ -24,6 +24,7 @@ You're a savvy Clojure Developer. You've already added [org.clojure/test.check "
 
 We can then leverage generation with the same sense of composition as a spec definition.
 ```  clojure
+(require '[cljs.spec.alpha  :as s])
 (require '[clojure.test.check :as tc])
 (require '[clojure.test.check.generators :as gen])
 
@@ -48,7 +49,7 @@ where skills are optional.
 
 ```
 We can test if a example conforms to the spec
-```
+``` clojure
 (s/conform ::developer {:name "Tom" :age 22})
 ;{:name "Tom", :age 22}
 
@@ -64,7 +65,7 @@ We can test if a example conforms to the spec
 ;true
 ```
  generate a example that conforms to the spec definition.
-```
+```clojure
 
 (gen/generate (s/gen ::developer))
 > {:spec.demo/name "A1s41l"

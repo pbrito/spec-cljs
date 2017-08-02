@@ -5,6 +5,7 @@
       [cljs.spec.alpha :as s]
       [expound.alpha :as expound];prety print messagems
       [clojure.test.check :as tc]
+      [reagent.core :as r]
 
       [clojure.test.check.generators :as gen]
       [clojure.test.check.properties :as prop :include-macros true]))
@@ -39,6 +40,8 @@
 ;
 ; (.log js/console (s/valid? even? 10)) ;; true
 ; (s/valid? even? 13)
+;(s/valid? integer? 5)
+;(gen/generate (s/gen integer?))
 
 (defn my-index
             "funcao indice"
@@ -76,3 +79,8 @@
 ; (s/def :example/place (s/keys :req-un [:example.place/city :example.place/state]))
 ; (s/explain :example/place {})
 ; (expound/expound :example/place {})
+
+
+
+;;;
+;;;
