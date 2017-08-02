@@ -4,8 +4,8 @@ A Clojurescrip intro.
 
 ## Usage
 
-[Introduction to spec with clojurescrip](doc/intro.md)
-[Introduction to reagent with clojurescrip](doc/reagent.md)
+  -[Introduction to spec with clojurescrip](doc/intro.md)
+  -[Introduction to reagent with clojurescrip](doc/reagent.md)
 
 ## License
 
