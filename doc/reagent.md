@@ -113,10 +113,8 @@ and render
                       :max 20}
     :person/birthday {:type :date}
     :person/deceased {:type :date}})
-```
-a data example
 
-```clojure
+;a data example
 (def a-person (r/atom {:person/person
                         {:person/firstname "Renate"
                          :person/lastname "Chasman"

@@ -2,11 +2,13 @@
 
 A Clojurescrip intro.
 
-## Usage
+## Docs
 
-  -[Introduction to spec with clojurescrip](doc/intro.md)
-  
-  -[Introduction to reagent with clojurescrip](doc/reagent.md)
+  * [Introduction to spec with clojurescrip](doc/intro.md)
+
+  * [Introduction to reagent with clojurescrip](doc/reagent.md)
+
+  * [Example Reagent geom ](doc/geom.md)
 
 ## License
 
