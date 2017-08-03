@@ -229,7 +229,7 @@ Add labels
            (fn [data-atom] [ui-element person-ui data-atom]))]
               (js/document.getElementById "app")))
 ```
-###Random
+### Random
 
 ```clojure
 
