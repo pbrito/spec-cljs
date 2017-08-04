@@ -115,8 +115,13 @@ Generates documentation based on specs:
 ;  ret: nat-int?
 ;  fn: (<= (:ret %) (-> % :args :source count))
 ```
-quick-check (from docs):
+##quick-check
+(from docs):
 ```clojure
+(require '[clojure.test.check :as tc])
+(require '[clojure.test.check.generators :as gen])
+(require '[clojure.test.check.properties :as prop])
+
 (def sort-idempotent-prop
   (prop/for-all [v (gen/vector gen/int)]
     (= (sort v) (sort (sort v)))))
