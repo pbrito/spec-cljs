@@ -115,8 +115,9 @@ Generates documentation based on specs:
 ;  ret: nat-int?
 ;  fn: (<= (:ret %) (-> % :args :source count))
 ```
-##quick-check
+## quick-check
 (from docs):
+
 ```clojure
 (require '[clojure.test.check :as tc])
 (require '[clojure.test.check.generators :as gen])
@@ -162,10 +163,12 @@ Clojure spec Screencast: Testing[video ClojureTV](https://www.youtube.com/watch?
 
 ```clojure
 (require '[clojure.string :as str])            
+
 (defn my-index-of
       "funcao indice"
       [source search & opts]
       (apply str/index-of source search opts))
+
 (s/fdef my-index-of
         :args (s/cat :source string? :search string?)
         :ret nat-int?
@@ -407,6 +410,7 @@ But cant generate a exemple:
 (apply my-index ["ob" "b" "o"])
 ;uso de s/cat
 (s/def ::index-of-args (s/cat :source string? :search string?))
+
 (s/valid? ::index-of-args ["foo" "i"]);=> true
 (s/valid? ::index-of-args ["foo" 8]);=> false
 (s/conform ::index-of-args ["foo" 8]);=> :cljs.spec.alpha/invalid
