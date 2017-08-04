@@ -50,10 +50,10 @@ where skills are optional.
 ```
 We can test if a example conforms to the spec
 ``` clojure
-(s/conform ::developer {:name "Tom" :age 22})
+(s/conform ::developer {::name "Tom" ::age 22})
 ;{:name "Tom", :age 22}
 
-(s/valid? ::developer {:name "Tom" :age 22})
+(s/valid? ::developer {::name "Tom" ::age 22})
 ;true
 
 (s/def ::id string?)
@@ -78,6 +78,8 @@ But if you want JSON data you must un-namespace:
 (s/def ::developer (s/keys :req-un [::name ::age]
                                  :opt-un [::skills]))
 
+(s/valid? ::developer {:name "Tom" :age 22})
+
 ```
 
 ``` clojure
@@ -87,10 +89,10 @@ But if you want JSON data you must un-namespace:
 Lets now define a function:
 
 ``` clojure
-(defn my-index
-            "funcao indice"
-            [source search]
-            (.indexOf source search))
+  (defn my-index
+              "funcao indice"
+              [source search]
+              (.indexOf source search))
 ```
 the spec for this function:
 

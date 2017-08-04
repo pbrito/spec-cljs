@@ -7,5 +7,5 @@
 (c/run)
 
 ```
-![image](../resources/geom.png)
+
 ![image](/resources/geom.png)

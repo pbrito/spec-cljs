@@ -8,7 +8,13 @@ A Clojurescrip intro.
 
   * [Introduction to reagent with clojurescrip](doc/reagent.md)
 
-  * [Example Reagent geom ](doc/geom.md)
+  * [Reagent - geometry Example ](doc/geom.md)
+
+ examples run in figwheel
+```
+rlwrap lein figwheel
+```
+
 
 ## License
 
