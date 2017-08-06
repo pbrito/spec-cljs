@@ -54,7 +54,9 @@ or call the function in the repl
 ```
 
 ### generating UI
-[link video apresentacao](https://www.youtube.com/watch?v=klX8d9A-M94)
+
+[![ clojureD 2017: "Automatic generation of user interfaces with ClojureScript" by Philipp Meier](https://img.youtube.com/vi/klX8d9A-M94/0.jpg)](https://www.youtube.com/watch?v=klX8d9A-M94))
+clojureD 2017: "Automatic generation of user interfaces with ClojureScript" by Philipp Meier
 
 ```clojure
 

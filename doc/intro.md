@@ -24,9 +24,13 @@ You're a savvy Clojure Developer. You've already added [org.clojure/test.check "
 
 We can then leverage generation with the same sense of composition as a spec definition.
 ```  clojure
+(ns hello.core)
 (require '[cljs.spec.alpha  :as s])
 (require '[clojure.test.check :as tc])
 (require '[clojure.test.check.generators :as gen])
+;(require '[clojure.test.check.properties :as prop])
+(require '[clojure.test.check.properties :as prop :include-macros true])
+(require '[expound.alpha :as expound]) ;more readble messages than spec/explain
 
 (gen/generate (s/gen int?))
 > 612
@@ -34,9 +38,13 @@ We can then leverage generation with the same sense of composition as a spec def
 
 Note: The value will be random.
 
-Lets now define a new spec for a map representing a developer.
+Lets now define a new spec for a *map* representing a developer.
 where skills are optional.
 
+> keys
+
+> Creates and returns a map validating spec. :req and :opt are both
+vectors of namespaced-qualified keywords.
 
 ``` clojure
 (s/def ::name string?)
@@ -50,27 +58,56 @@ where skills are optional.
 ```
 We can test if a example conforms to the spec
 ``` clojure
-(s/conform ::developer {::name "Tom" ::age 22})
-;{:name "Tom", :age 22}
+
+(s/valid? string? "ABC-123")
+;true
+
+(s/valid? even? 13)
+;false
+
+(s/valid? ::name "ABC-123")
+;true
 
 (s/valid? ::developer {::name "Tom" ::age 22})
 ;true
 
-(s/def ::id string?)
-;to check validity:
-(s/valid? ::id "ABC-123")
-;true
+(s/conform ::developer {::name "Tom" ::age 22})
+;=>#:hello.core{:name "Tom", :age 22}
 
-(s/valid? string? "ABC-123")
-;true
+(s/conform ::developer {::name "Tom" ::age "e3"})
+;=>:cljs.spec.alpha/invalid
+
+(s/explain-str ::developer {::name "Tom" ::age "e3"})
+;=> "In: [:cljs.user/age] val: \"e3\" fails spec: :cljs.user/age at: [:cljs.user/age]
+;predicate: int?\nval: #:cljs.user{:name \"Tom\", :age \"e3\"} fails spec: :cljs.user/developer predicate: (contains? % :name)\nval: #:cljs.user{:name \"Tom\", :age \"e3\"} fails spec: :cljs.user/developer predicate: (contains? % :age)\n:cljs.spec.alpha/spec  :cljs.user/developer\n:cljs.spec.alpha/value  #:cljs.user{:name \"Tom\", :age \"e3\"}\n"
+
+(expound/expound ::developer {::name "Tom" ::age "e3"})
+; -- Spec failed --------------------
+;   {:cljs.user/name ..., :cljs.user/age "e3"}
+;                                        ^^^^                                      ^^^^
+;   should satisfy
+;   int?
+; -- Relevant specs -------
+;
+; :cljs.user/age: cljs.core/int?
+; :cljs.user/developer:
+;   (cljs.spec.alpha/keys
+;    :req-un [:cljs.user/name :cljs.user/age]
+;    :opt-un [:cljs.user/skills])
+; -------------------------
+; Detected 1 error
 ```
  generate a example that conforms to the spec definition.
 ```clojure
 
 (gen/generate (s/gen ::developer))
-> {:spec.demo/name "A1s41l"
-   :spec.demo/age 9134
-   :spec.demo/skills '()}
+;=> #:hello.core{:spec.demo/name "A1s41l"
+;                :spec.demo/age 9134
+;                :spec.demo/skills '()}
+
+(s/exercise ::developer)
+;.....
+
 ```
 But if you want JSON data you must un-namespace:
 
@@ -81,47 +118,31 @@ But if you want JSON data you must un-namespace:
 (s/valid? ::developer {:name "Tom" :age 22})
 
 ```
-
+generate a JSON
 ``` clojure
 (gen/generate (s/gen ::developer))
-;{:name "5u75SJ4Fl8M8", :age -130186}                                 
+;{:name "5u75SJ4Fl8M8", :age -130186}  
+
+;Generate data from specs:
+(gen/sample (s/gen string?))
+;=>("" "" "n" "Xp" "5lZj" "UHJ" "h5" "q" "72" "gPC7pN")
+
+(gen/sample (s/gen ::developer))
+;=>({:name "", :age -1, :skills ()}
+;    {:name "w", :age -1, :skills ()}
+;    {:name "M", :age 0, :skills (:!)}
+;    {:name "c", :age 0, :skills (-0.6875 :RY)}
+;    {:name "uM5", :age -1}
+;    {:name "29", :age 1, :skills (-2 true "\"%(")}
+;    {:name "XromNN", :age 1, :skills (:Sz.x/+9* -3 true "S/Aw8)")}
+;    {:name "2hOiiP", :age -7, :skills (W+1 :v! :+8c T5c)}
+;    {:name "Gp3Q58", :age 1}
+;    {:name "0VP6l0", :age 27, :skills (-6 "ir9|?f)" G/c :_J r)})                               
 ```       
-Lets now define a function:
 
-``` clojure
-  (defn my-index
-              "funcao indice"
-              [source search]
-              (.indexOf source search))
-```
-the spec for this function:
-
-``` clojure
-(s/fdef my-index
-                :args (s/cat :source string? :search string?)
-                :ret nat-int?
-                :fn #(<= (:ret %) (-> % :args :source count)))
-```
-Generates documentation based on specs:
-
-``` clojure
-(doc my-index)
-; -------------------------
-; cljs.user/my-index
-; ([source search])
-;   funcao indice
-; Spec
-;  args: (cat :source string? :search string?)
-;  ret: nat-int?
-;  fn: (<= (:ret %) (-> % :args :source count))
-```
-## quick-check
-(from docs):
+## quick-check *(from docs)*:
 
 ```clojure
-(require '[clojure.test.check :as tc])
-(require '[clojure.test.check.generators :as gen])
-(require '[clojure.test.check.properties :as prop])
 
 (def sort-idempotent-prop
   (prop/for-all [v (gen/vector gen/int)]
@@ -150,24 +171,26 @@ Generates documentation based on specs:
 
 
 ```
-Generate data from specs:
 
-``` clojure
-(gen/sample (s/gen string?))
-;=>("" "" "n" "Xp" "5lZj" "UHJ" "h5" "q" "72" "gPC7pN")
-```
-
-## nn
+## spec + quick-check
 
 Clojure spec Screencast: Testing[video ClojureTV](https://www.youtube.com/watch?v=W6crrbF7s2s)
+
+[![ video](https://img.youtube.com/vi/W6crrbF7s2s/0.jpg)](https://www.youtube.com/watch?v=W6crrbF7s2s)
 
 ```clojure
 (require '[clojure.string :as str])            
 
 (defn my-index-of
-      "funcao indice"
+      "funcao indice este texto descreve a funcao para documentacao"
       [source search & opts]
       (apply str/index-of source search opts))
+
+        ; (defn my-index-alt
+        ;             "funcao indice"
+        ;             [source search]
+        ;             (.indexOf source search))
+
 
 (s/fdef my-index-of
         :args (s/cat :source string? :search string?)
@@ -186,7 +209,22 @@ Clojure spec Screencast: Testing[video ClojureTV](https://www.youtube.com/watch?
 ;  [("0i" "1qd") nil]
 ;  [("05Rc" "985RtEo7q") nil])
 
+
+(doc my-index-of)
+
+; -------------------------
+; cljs.user/my-index-of
+; ([source search & opts])
+;   funcao indice
+; Spec
+;  args: (cat :source string? :search string?)
+;  ret: nat-int?
+;  fn: (<= (:ret %) (-> % :args :source count))
+
 ```
+
+
+
 Improve definition using alt in ":search"
 ``` clojure
 
@@ -287,6 +325,7 @@ true
 
 ```
 
+## which came first
 
 ``` clojure
 (defn which-came-first
@@ -316,7 +355,7 @@ true
 Clojure spec Screencast Series [videos](https://www.youtube.com/watch?v=WoFkhE92fqc&t=90s)
 
 
-## L
+## generating
 
 from a spec presentation [video](https://www.youtube.com/watch?v=S43Y9a876K8&t=756s)
 [code](https://gist.github.com/mrcnc/44a0257818f8932085f398ca20abe7ba)
@@ -351,7 +390,7 @@ from a spec presentation [video](https://www.youtube.com/watch?v=S43Y9a876K8&t=7
 ;=> {[1.75] #{:s6:u*92 "¶ªJô»-1#ngAÄM*ã| "},() :_?*-b.UB.oh+-u.vV6a?/e*, #{:q?+P.GZ4.k.?/aa**l"0¯ÃãÆûñ£{wF·.Gó¿çéýÎ®Ë'5ý&#"} (-789), true {}}
 
 ```
-
+## user spec example
 
 ``` clojure
 ;; here's how we might spec a user
@@ -381,82 +420,3 @@ But cant generate a exemple:
 ## links
 - [informal guide to clojure-spec](http://www.bradcypert.com/an-informal-guide-to-clojure-spec/)
 - [generators intro](https://github.com/clojure/test.check/blob/master/doc/intro.md)
-
-``` clojure
-(ns hello.core)
-(require '[cljs.spec.alpha  :as s])
-(require '[expound.alpha :as expound])
-
-(s/def :example.place/city string?)
-(s/def :example.place/state string?)
-(s/def :example/place (s/keys :req-un [:example.place/city :example.place/state]))
-(s/explain :example/place {})
-(expound/expound :example/place {})
-
-
-(require '[clojure.test.check :as tc])
-(require '[clojure.test.check.generators :as gen])
-(require '[clojure.test.check.properties :as prop :include-macros true])
-
-(s/valid? even? 13)
-
-(defn my-index
-            "funcao indice"
-            [source search]
-            (.indexOf source search))
-
-(my-index "ob" "b") ;=> 1
-            ;ou
-(apply my-index ["ob" "b" "o"])
-;uso de s/cat
-(s/def ::index-of-args (s/cat :source string? :search string?))
-
-(s/valid? ::index-of-args ["foo" "i"]);=> true
-(s/valid? ::index-of-args ["foo" 8]);=> false
-(s/conform ::index-of-args ["foo" 8]);=> :cljs.spec.alpha/invalid
-(s/conform ::index-of-args ["foo" "f" ]);=> {:source "foo", :search "f"}
-(s/explain ::index-of-args ["foo" 8])
-                              ;  In: [1] val: 8 fails spec: :cljs.user/index-of-args at: [:search] predicate: string?
-                              ;  :cljs.spec.alpha/spec  :cljs.user/index-of-args
-                              ;  :cljs.spec.alpha/value  ["foo" 8]
-
-  (s/fdef my-index
-                :args (s/cat :source string? :search string?)
-                :ret nat-int?
-                :fn #(<= (:ret %) (-> % :args :source count)))
-  (doc my-index)
-; -------------------------
-; cljs.user/my-index
-; ([source search])
-;   funcao indice
-; Spec
-;  args: (cat :source string? :search string?)
-;  ret: nat-int?
-;  fn: (<= (:ret %) (-> % :args :source count))
-
-
-(expound/expound  ::index-of-args ["foo" 8])
-
-; -- Spec failed --------------------
-;
-;   [... 8]
-;        ^
-;
-; should satisfy
-;
-;   cljs.core/string?
-;
-; -- Relevant specs -------
-;
-; :cljs.user/index-of-args:
-;   (cljs.spec.alpha/cat
-;    :source
-;    cljs.core/string?
-;    :search
-;    cljs.core/string?)
-;
-; -------------------------
-; Detected 1 error
-
-
-```
