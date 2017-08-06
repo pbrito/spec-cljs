@@ -42,7 +42,6 @@ Lets now define a new spec for a *map* representing a developer.
 where skills are optional.
 
 > keys
-
 > Creates and returns a map validating spec. :req and :opt are both
 vectors of namespaced-qualified keywords.
 
