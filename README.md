@@ -10,6 +10,8 @@ A Clojurescrip intro.
 
   * [Reagent - geometry Example ](doc/geom.md)
 
+  * [Reagent - game loop ](doc/game.md)
+
  examples run in figwheel
 ```
 rlwrap lein figwheel
