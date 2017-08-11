@@ -7,9 +7,15 @@ then we add state
 <a href="url">
 <img src="/resources/gameatoms_Loop.png" width="248">
 </a>
+
 source:http://www.lostgarden.com/
+
+
 
 <a href="url">
 <img src="/resources/friendshipreciprocityloop.png" width="248">
 </a>
+
 source:http://www.lostgarden.com/
+
+---
