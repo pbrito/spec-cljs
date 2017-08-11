@@ -214,7 +214,7 @@ Clojure spec Screencast: Testing[video ClojureTV](https://www.youtube.com/watch?
 ; -------------------------
 ; cljs.user/my-index-of
 ; ([source search & opts])
-;   funcao indice
+;     funcao indice este texto descreve a funcao para documentacao
 ; Spec
 ;  args: (cat :source string? :search string?)
 ;  ret: nat-int?

@@ -30,6 +30,7 @@
 
 ``` clojure
 (require '[reagent.core  :as r])
+(require  '[clojure.pprint :refer [pprint]])
 
 (defn greeting [message]
   [:h1 message])
@@ -60,16 +61,15 @@ clojureD 2017: "Automatic generation of user interfaces with ClojureScript" by P
 
 ```clojure
 
-(require '[reagent.core :as r])
-(require  '[clojure.pprint :refer [pprint]])
 
 (defn show [data-atom & fs]
   (fn []
-    (vec (conj (into [:div.row.show]
-                     (for [f fs]
-                       [:div.col
-                        (f data-atom)]))
-               [:div.col
+    (vec
+      (conj
+        (into [:div.row.show]
+              (for [f fs]
+                   [:div.col (f data-atom)]))
+        [:div.col
                 [:span {:font-weight :bold} "Data Atom"]
                 [:code [:pre {:style {:white-space :wrap}}
                         (with-out-str (pprint @data-atom))]]]))))
@@ -184,18 +184,26 @@ Add labels
 (def person-ui
    {:input :fieldset
     :label "Person"
-    :fields [{:path [:person/person :person/firstname] :input :textedit
+    :fields [{:path [:person/person :person/firstname]
+              :input :textedit
               :label "Given name"}
-             {:path [:person/person :person/lastname] :input :textedit
-              :label "Family name"}
-             {:path [:person/person :person/birthday] :input :textedit
+             { :path [:person/person :person/lastname]
+               :input :textedit
+               :label "Family name"}
+            ;  {:path [:person/person :person/lastname] :input :textedit
+            ;   :label "Family nameSame"}
+             {:path [:person/person :person/birthday]
+              :input :date
               :label "Date of birth"}]})
 
 ```
 
 ```clojure
+; (defmulti ui-element*
+;       (fn [{:keys [input] :as ui-definition} data-atom] input))
+
 (defmulti ui-element*
-      (fn [{:keys [input] :as ui-definition} data-atom] input))
+      (fn [{:keys [input] } data-atom] input))
 
 (defn ui-element [attr data-atom]
        @data-atom ;; force deref. this is a hack... Â¯\_(ãƒ„)_/Â¯
@@ -221,14 +229,35 @@ Add labels
         (for [f fields]
           (ui-element f data-atom))]))
 
+(ui-element person-ui a-person)
+;=>[:fieldset
+;   [:legend "Person"]
+;   ([:div
+;     [:label "Given name"]
+;     [:input {:value "Renate", :on-change #object[Function]}]]
+;    [:div
+;     [:label "Family name"]
+;     [:input {:value "Chasman", :on-change #object[Function]}]]
+;    [:div
+;     [:label "Date of birth"]
+;     [:input
+;      {:type :date, :value "1932-01-05", :on-change #object[Function]}]])]
+
+;nao sei porque os parentes rectos funcionam
 (show a-person
         (fn [data-atom] [ui-element person-ui data-atom]))
+
+(defn ^:export runlix7 []
+        (r/render [(show a-person
+        (fn [data-atom] [ui-element person-ui]))]
+        (js/document.getElementById "app")))
 
 (defn ^:export run3 []
    (r/render [(show a-person
            (fn [data-atom] [ui-element person-ui data-atom]))]
               (js/document.getElementById "app")))
 ```
+
 ### Random
 
 ```clojure
@@ -285,6 +314,10 @@ Add labels
                    {:path [:person/person :person/birthday]
                     :input :textedit :label "Date of birth"} ]}
          data-atom]))
+
+
+
+         
 
 ```
 
