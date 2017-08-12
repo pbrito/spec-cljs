@@ -1,5 +1,4 @@
 
-Game Feel: A Game Designer's Guide to Virtual
 
 In the beginig  there were only a simple loop link to link.
 then we add state
@@ -19,3 +18,10 @@ source:http://www.lostgarden.com/
 source:http://www.lostgarden.com/
 
 ---
+
+resources
+----
+Game Feel: A Game Designer's Guide to Virtual
+
+german board game-  transform resources though internal economies
+http://www.jorisdormans.nl/article.php?ref=machinations

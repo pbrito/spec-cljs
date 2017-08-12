@@ -18,7 +18,7 @@
 
 ``` clojure
 
-
+;javacript interop
 (js/document.querySelector "#barra")
 ;=>#object[HTMLDivElement [object HTMLDivElement]]
 
@@ -54,7 +54,7 @@ or call the function in the repl
 (run)
 ```
 
-### generating UI
+### generating UI presentation
 
 [![ clojureD 2017: "Automatic generation of user interfaces with ClojureScript" by Philipp Meier](https://img.youtube.com/vi/klX8d9A-M94/0.jpg)](https://www.youtube.com/watch?v=klX8d9A-M94))
 clojureD 2017: "Automatic generation of user interfaces with ClojureScript" by Philipp Meier
@@ -75,24 +75,39 @@ clojureD 2017: "Automatic generation of user interfaces with ClojureScript" by P
                         (with-out-str (pprint @data-atom))]]]))))
 
 
-(def srzly???
+(def text_data
   (r/atom (with-out-str
             (pprint {:firstname "John"
                      :lastname "Silly"}))))
 
-(defn kiss-ui [a]
+(defn render_text [a]
  [:textarea {:value @a
              :on-change (fn [e] (reset! a (.-target.value e)))}])
+```
 
+```clojure
+((show text_data render_text))
+```
 
-(show srzly??? kiss-ui)
+```clojure
+[:div.row.show
+ [:div.col
+  [:textarea
+   {:value "{:firstname \"John\", :lastname \"Silly\"}",
+    :on-change #object[Function]}]]
+ [:div.col
+  [:span {:font-weight :bold} "Data Atom"]
+  [:code
+   [:pre
+    {:style {:white-space :wrap}}
+    "\"{:firstname \"John\", :lastname \"Silly\"}\" "]]]]
 ```
 and render
 
 ```clojure
 ;
 (defn ^:export run []
- (r/render [(show srzly??? kiss-ui)]
+ (r/render [(show text_data render_text)]
            (js/document.getElementById "app")))
 
 (run)
@@ -159,6 +174,37 @@ and render
 (show a-person
       (fn [a]
         (render attrs [:person/person] a)))
+```
+```clojure
+[:div.row.show
+ [:div.col
+  [:fieldset
+   [:legend :person/person]
+   ([:div
+     [:label :person/firstname]
+     [:input {:value "Renate", :on-change #object[Function]}]]
+    [:div
+     [:label :person/lastname]
+     [:input {:value "Chasman", :on-change #object[Function]}]]
+    [:div
+     [:label :person/birthday]
+     [:input
+      {:type :date,
+       :value "1932-01-10",
+       :on-change #object[Function]}]]
+    [:div
+     [:label :person/deceased]
+     [:input
+      {:type :date, :value nil, :on-change #object[Function]}]])]]
+ [:div.col
+  [:span {:font-weight :bold} "Data Atom"]
+  [:code
+   [:pre
+    {:style {:white-space :wrap}}
+    "{:person/person\n {:person/firstname \"Renate\",\n  :person/lastname \"Chasman\", \n  :person/birthday \"1932-01-10\"}}\n"]]]]
+```
+
+``` clojure
 
 (defn ^:export run2 []
    (r/render [(show a-person
@@ -166,9 +212,10 @@ and render
                  (render attrs [:person/person] a)))]
               (js/document.getElementById "app")))
 ```
+### UI model
 
-
-* A model to describe the UI
+ A model to describe the UI
+ ---
 
 ``` clojure
 (def person-ui
@@ -177,7 +224,7 @@ and render
              {:attr :person/lastname  :input :textedit}
              {:attr :person/birthday  :input :textedit}]})
 ```
-Add labels
+Improve UI by adding labels
 
 ``` clojure
 
@@ -244,8 +291,34 @@ Add labels
 ;      {:type :date, :value "1932-01-05", :on-change #object[Function]}]])]
 
 ;nao sei porque os parentes rectos funcionam
-(show a-person
-        (fn [data-atom] [ui-element person-ui data-atom]))
+((show a-person
+        (fn [data-atom] [ui-element person-ui data-atom])))
+        ```
+```clojure
+[:div.row.show
+ [:div.col
+  [#object[cljs$user$ui_element]
+   {:input :fieldset,
+    :label "Person",
+    :fields
+    [{:path [:person/person :person/firstname],
+      :input :textedit,
+      :label "Given name"}
+     {:path [:person/person :person/lastname],
+      :input :textedit,
+      :label "Family name"}
+     {:path [:person/person :person/birthday],
+      :input :date,
+      :label "Date of birth"}]}
+   #<Atom: {:person/person {:person/firstname "Renate", :person/lastname "Chasman", :person/birthday "1932-01-10"}}>]]
+ [:div.col
+  [:span {:font-weight :bold} "Data Atom"]
+  [:code
+   [:pre
+    {:style {:white-space :wrap}}
+    "{:person/person\n {:person/firstname \"Renate\",\n  :person/lastname \"Chasman\", \n  :person/birthday \"1932-01-10\"}}\n"]]]]
+```        
+```clojure
 
 (defn ^:export runlix7 []
         (r/render [(show a-person
@@ -271,6 +344,7 @@ Add labels
                           (update! data-atom path (rand-nth choices)))}]]))
 
 ```
+Instead of a-person and person-ui lets define diferent data and ui.
 
 ```clojure
 
@@ -317,7 +391,7 @@ Add labels
 
 
 
-         
+
 
 ```
 
