@@ -16,8 +16,21 @@ A Clojurescrip intro.
 ```
 rlwrap lein figwheel
 ```
+To  print github Docs
+ 
+``` css
+pre {
+    border-width: thin;
+    border-color: lightgrey;
+    border-style: solid;
+}
 
-
+.container {
+    /* width: 980px; */
+    /* margin-right: auto; */
+    /* margin-left: auto; */
+}
+```
 ## License
 
 Copyright © 2017 FIXME

@@ -5,20 +5,19 @@
 ##  Interacting with JavaScript and the DOM
 
 #### METHOD CALLS
-
+```clojure
 (.method object params)
-
 (.log js/console "hello world!")
-
+```
 #### ACCESSING PROPERTIES
 
 (.-property object)
 
 (.-style div)
 
-``` clojure
+```clojure
 
-;javacript interop
+;javascript interop
 (js/document.querySelector "#barra")
 ;=>#object[HTMLDivElement [object HTMLDivElement]]
 
@@ -28,7 +27,7 @@
 ```
 ## reagent example
 
-``` clojure
+```clojure
 (require '[reagent.core  :as r])
 (require  '[clojure.pprint :refer [pprint]])
 
@@ -40,17 +39,18 @@
    [greeting "Hello world, it is now"]])         
 ```
 
-``` clojure
+```clojure
 (defn ^:export run []
  (r/render [simple-example]
            (js/document.getElementById "app")))
 ```
 call the function in the browser
-``` clojure         
+```clojure
 hello.core.run()
 ```
+
 or call the function in the repl
-``` clojure
+```clojure
 (run)
 ```
 
@@ -60,8 +60,6 @@ or call the function in the repl
 clojureD 2017: "Automatic generation of user interfaces with ClojureScript" by Philipp Meier
 
 ```clojure
-
-
 (defn show [data-atom & fs]
   (fn []
     (vec
@@ -115,7 +113,8 @@ and render
 
 ### 4 data model
 
-``` clojure
+
+```clojure
 (def attrs
    {:person/person {:type :map
                     :keys [:person/firstname
@@ -138,13 +137,13 @@ and render
                          :person/birthday "1932-01-10"}}))
 ```
 
-``` clojure
+```clojure
 (defmulti render* (fn [attrs path data-atom]
   (:type (get attrs (last path)))))
 
-;truque para multimethod funcionar com reagent
-(defn render [attrs path data-atom]
-  (render* attrs path data-atom))
+;não sei para que serve -- truque para multimethod funcionar com reagent
+;(defn render [attrs path data-atom]
+;  (render* attrs path data-atom))
 
 (defn update! [a path value]
      (swap! a assoc-in path value))
@@ -161,20 +160,21 @@ and render
              ;; better: user date type with parse and format
              :value (get-in @data-atom path)
              :on-change (fn [e] (update! data-atom path (-> e .-target.value)))}]])     
-             (defmethod render* :map [attrs path data-atom]
-               (let [attr (get attrs (last path))]
-                 [:fieldset
-                   [:legend (last path)]
-                   (for [k (:keys attr)]
-                     (render attrs (vec (concat path [k])) data-atom))]))                                 
+(defmethod render* :map [attrs path data-atom]
+(let [attr (get attrs (last path))]
+ [:fieldset
+   [:legend (last path)]
+   (for [k (:keys attr)]
+     (render* attrs (vec (concat path [k])) data-atom))]))                                 
 ```
 
 
-```clojure  
-(show a-person
+```clojure
+((show a-person
       (fn [a]
-        (render attrs [:person/person] a)))
+        (render* attrs [:person/person] a))))
 ```
+
 ```clojure
 [:div.row.show
  [:div.col
@@ -204,12 +204,12 @@ and render
     "{:person/person\n {:person/firstname \"Renate\",\n  :person/lastname \"Chasman\", \n  :person/birthday \"1932-01-10\"}}\n"]]]]
 ```
 
-``` clojure
+```clojure
 
 (defn ^:export run2 []
    (r/render [(show a-person
                (fn [a]
-                 (render attrs [:person/person] a)))]
+                 (render* attrs [:person/person] a)))]
               (js/document.getElementById "app")))
 ```
 ### UI model
@@ -217,7 +217,7 @@ and render
  A model to describe the UI
  ---
 
-``` clojure
+```clojure
 (def person-ui
    {:input :fieldset
     :fields [{:attr :person/firstname :input :textedit}
@@ -226,7 +226,7 @@ and render
 ```
 Improve UI by adding labels
 
-``` clojure
+```clojure
 
 (def person-ui
    {:input :fieldset
@@ -246,15 +246,13 @@ Improve UI by adding labels
 ```
 
 ```clojure
-; (defmulti ui-element*
-;       (fn [{:keys [input] :as ui-definition} data-atom] input))
 
 (defmulti ui-element*
       (fn [{:keys [input] } data-atom] input))
 
-(defn ui-element [attr data-atom]
-       @data-atom ;; force deref. this is a hack... Â¯\_(ãƒ„)_/Â¯
-       (ui-element* attr data-atom))  
+;(defn ui-element [attr data-atom]
+;       @data-atom ;; force deref. this is a hack... Â¯\_(ãƒ„)_/Â¯
+;       (ui-element* attr data-atom))  
 
 (defmethod ui-element* :textedit [{:keys [path label]} data-atom]
     [:div [:label (or label (last path))]
@@ -270,13 +268,12 @@ Improve UI by adding labels
               :on-change (fn [e] (update! data-atom path (-> e .-target.value)))}]])
 
 (defmethod ui-element* :fieldset [{:keys [path label fields]} data-atom]
-     (let [attr (get attrs (last path))]
        [:fieldset
         [:legend (or label (last path))]
         (for [f fields]
-          (ui-element f data-atom))]))
+          (ui-element* f data-atom))])
 
-(ui-element person-ui a-person)
+(ui-element* person-ui a-person)
 ;=>[:fieldset
 ;   [:legend "Person"]
 ;   ([:div
@@ -290,9 +287,9 @@ Improve UI by adding labels
 ;     [:input
 ;      {:type :date, :value "1932-01-05", :on-change #object[Function]}]])]
 
-;nao sei porque os parentes rectos funcionam
+;replaced--nao sei porque os parentes rectos funcionam
 ((show a-person
-        (fn [data-atom] [ui-element person-ui data-atom])))
+        (fn [data-atom] (ui-element* person-ui data-atom))))
         ```
 ```clojure
 [:div.row.show
@@ -320,14 +317,9 @@ Improve UI by adding labels
 ```        
 ```clojure
 
-(defn ^:export runlix7 []
-        (r/render [(show a-person
-        (fn [data-atom] [ui-element person-ui]))]
-        (js/document.getElementById "app")))
-
 (defn ^:export run3 []
    (r/render [(show a-person
-           (fn [data-atom] [ui-element person-ui data-atom]))]
+                      (fn [data-atom] (ui-element* person-ui data-atom)))]
               (js/document.getElementById "app")))
 ```
 
@@ -359,15 +351,15 @@ Instead of a-person and person-ui lets define diferent data and ui.
                         :path [:city]
                         :choices ["New York" "Rio" "Tokio"]}]})
 
-(show city-data
+((show city-data
       (fn [data-atom]
-        [ui-element city-ui data-atom]))
+        (ui-element* city-ui data-atom))))
 
 
 (defn ^:export run4 []
    (r/render [(show city-data
          (fn [data-atom]
-           [ui-element city-ui data-atom]))]
+           (ui-element* city-ui data-atom)))]
               (js/document.getElementById "app")))
 ```
 
@@ -387,11 +379,7 @@ Instead of a-person and person-ui lets define diferent data and ui.
                     :input :textedit :label "Given name"}
                    {:path [:person/person :person/birthday]
                     :input :textedit :label "Date of birth"} ]}
-         data-atom]))
-
-
-
-
+         data-atom]))  
 
 ```
 
@@ -403,7 +391,7 @@ Instead of a-person and person-ui lets define diferent data and ui.
  {:input :textedit :label (name (last path)) :path path})
 
 (defmethod gen-ui :date [attrs path]
-   {:input :textedit :label (name (last path)) :path path})
+   {:input :date :label (name (last path)) :path path})
 
 (defmethod gen-ui :map [attrs path]
    {:input :fieldset
@@ -470,15 +458,15 @@ Instead of a-person and person-ui lets define diferent data and ui.
                     [:person/person :person/firstname]]))
 
 (def ui (-> (gen-ui attrs [:person/person])
-                (reorder-fields [[:person/person :person/lastname]
-                                 [:person/person :person/firstname]])
-                (with-label [:person/person :person/firstname] "Given name")
-                (with-label [:person/person :person/lastname] "Family name")
-                (with-label [:person/person :person/birthday] "Day of birth")
-                (remove-field [:person/person :person/deceased])))
+            (reorder-fields [[:person/person :person/lastname]
+                             [:person/person :person/firstname]])
+            (with-label [:person/person :person/firstname] "Given name")
+            (with-label [:person/person :person/lastname] "Family name")
+            (with-label [:person/person :person/birthday] "Day of birth")
+            (remove-field [:person/person :person/deceased])))
 
-(show a-person
-      (fn [a] (ui-element ui a)))
+((show a-person
+      (fn [a] (ui-element ui a))))
 
 (defn ^:export run5 []
    (r/render [(show a-person (fn [a] (ui-element ui a)))]
@@ -496,6 +484,15 @@ Instead of a-person and person-ui lets define diferent data and ui.
    :person/birthday {:type :date}
    :person/deceased {:type :date}})
 
+(def attrs2
+ {:person/person {:type :map
+                  :keys [:person/firstname :person/lastname :person/birthday :person/deceased :person/favcolor]}
+  :person/firstname {:type :string}
+  :person/lastname {:type :string}
+  :person/favcolor {:type :string}
+  :person/birthday {:type :date}
+  :person/deceased {:type :date}})
+
 (def ui (-> (gen-ui attrs2 [:person/person])
             (reorder-fields [[:person/person :person/lastname]
                              [:person/person :person/firstname]])
@@ -510,5 +507,67 @@ Instead of a-person and person-ui lets define diferent data and ui.
 (defn ^:export run6 []
    (r/render [(show a-person (fn [a] (ui-element ui a)))]
               (js/document.getElementById "app")))
+
+```
+
+
+
+
+```clojure
+(def attrsPaulo
+ {:Paulo/page {:elements :map}
+  :Paulo/title {:text :string}
+  :Paulo/textbox {:text :string}
+  :Paulo/label {:text :string}
+  :Paulo/panel {:elements :map}
+  :Paulo/line {:elements :map}})
+
+
+(def a-page (r/atom {:page1  {:type :Paulo/page :map [:title1 :panel1]}
+                     :title1 {:type :Paulo/title :text "Titulo"}
+                     :panel1 {:type :Paulo/panel :map [:line1 :line2]}
+                     :line1 {:type :Paulo/line :map [:label1 :textbox1]}
+                     :line2 {:type :Paulo/line :map [:label2 :textbox2]}
+                     :label1 {:type :Paulo/label :text "first name"}
+                     :textbox1 {:type :Paulo/textbox :text :person/firstname}
+                     :label2 {:type :Paulo/label :text "last name"}
+                     :textbox2 {:type :Paulo/textbox :text :person/lasttname}
+                     }))  
+
+```
+
+
+```clojure
+(defmulti render2* (fn [id atom] (:type (id atom) )))
+
+(defn render2 [id data-atom]
+       @data-atom ;; force deref. this is a hack... Â¯\_(ãƒ„)_/Â¯
+       (render2* id data-atom))  
+
+(defmethod render2* :Paulo/page [id data-atom]
+  [:div     (map (fn [id] (render2 id data-atom)  )  (:map (id  data-atom)) )
+])
+
+(defmethod render2* :Paulo/title [id data-atom]
+    [:h1 (:text (id data-atom))
+        ])
+
+(defmethod render2* :Paulo/panel [id data-atom]
+   [:div
+      (map (fn [id] (render2* id data-atom)) (:map (id  data-atom)) )
+     ;"(map (fn [id] (render2 id data-atom) ) (:map (id  data-atom)) )"
+   ])
+
+(defmethod render2* :Paulo/label [id data-atom]
+   [:div  (:text (id  data-atom))  ])
+
+ (defmethod render2* :Paulo/line [id data-atom]
+    [:div
+       (map (fn [id] (render2* id data-atom)) (:map (id  data-atom)) )
+
+    ])
+
+(defmethod render2* :Paulo/textbox [id data-atom]
+   [:input   (:text (id  data-atom)) ])
 
 ```
