@@ -287,34 +287,38 @@ Improve UI by adding labels
 ;     [:input
 ;      {:type :date, :value "1932-01-05", :on-change #object[Function]}]])]
 
-;replaced--nao sei porque os parentes rectos funcionam
+;replaced-- nao sei porque os parentes rectos funcionam
 ((show a-person
         (fn [data-atom] (ui-element* person-ui data-atom))))
-        ```
+```
+        
 ```clojure
+
 [:div.row.show
  [:div.col
-  [#object[cljs$user$ui_element]
-   {:input :fieldset,
-    :label "Person",
-    :fields
-    [{:path [:person/person :person/firstname],
-      :input :textedit,
-      :label "Given name"}
-     {:path [:person/person :person/lastname],
-      :input :textedit,
-      :label "Family name"}
-     {:path [:person/person :person/birthday],
-      :input :date,
-      :label "Date of birth"}]}
-   #<Atom: {:person/person {:person/firstname "Renate", :person/lastname "Chasman", :person/birthday "1932-01-10"}}>]]
+  [:fieldset
+   [:legend "Person"]
+   ([:div
+     [:label "Given name"]
+     [:input {:value "Renate", :on-change #object[Function]}]]
+    [:div
+     [:label "Family name"]
+     [:input {:value "Chasman", :on-change #object[Function]}]]
+    [:div
+     [:label "Date of birth"]
+     [:input
+      {:type :date,
+       :value "1932-01-10",
+       :on-change #object[Function]}]])]]
  [:div.col
   [:span {:font-weight :bold} "Data Atom"]
   [:code
    [:pre
     {:style {:white-space :wrap}}
     "{:person/person\n {:person/firstname \"Renate\",\n  :person/lastname \"Chasman\", \n  :person/birthday \"1932-01-10\"}}\n"]]]]
-```        
+````
+
+        
 ```clojure
 
 (defn ^:export run3 []
@@ -401,6 +405,27 @@ Instead of a-person and person-ui lets define diferent data and ui.
 
 
 (gen-ui attrs [:person/person])
+```
+
+```clojure 
+{:input :fieldset,
+ :label "person",
+ :fields
+ [{:input :textedit,
+   :label "firstname",
+   :path [:person/person :person/firstname]}
+  {:input :textedit,
+   :label "lastname",
+   :path [:person/person :person/lastname]}
+  {:input :date,
+   :label "birthday",
+   :path [:person/person :person/birthday]}
+  {:input :date,
+   :label "deceased",
+   :path [:person/person :person/deceased]}]}
+```
+
+```clojure
 
 
 (comment
@@ -474,7 +499,6 @@ Instead of a-person and person-ui lets define diferent data and ui.
 
 ```
 
-
 ```clojure
 (def attrs2
   {:person/person {:type :map
@@ -511,63 +535,4 @@ Instead of a-person and person-ui lets define diferent data and ui.
 ```
 
 
-
-
-```clojure
-(def attrsPaulo
- {:Paulo/page {:elements :map}
-  :Paulo/title {:text :string}
-  :Paulo/textbox {:text :string}
-  :Paulo/label {:text :string}
-  :Paulo/panel {:elements :map}
-  :Paulo/line {:elements :map}})
-
-
-(def a-page (r/atom {:page1  {:type :Paulo/page :map [:title1 :panel1]}
-                     :title1 {:type :Paulo/title :text "Titulo"}
-                     :panel1 {:type :Paulo/panel :map [:line1 :line2]}
-                     :line1 {:type :Paulo/line :map [:label1 :textbox1]}
-                     :line2 {:type :Paulo/line :map [:label2 :textbox2]}
-                     :label1 {:type :Paulo/label :text "first name"}
-                     :textbox1 {:type :Paulo/textbox :text :person/firstname}
-                     :label2 {:type :Paulo/label :text "last name"}
-                     :textbox2 {:type :Paulo/textbox :text :person/lasttname}
-                     }))  
-
-```
-
-
-```clojure
-(defmulti render2* (fn [id atom] (:type (id atom) )))
-
-(defn render2 [id data-atom]
-       @data-atom ;; force deref. this is a hack... Â¯\_(ãƒ„)_/Â¯
-       (render2* id data-atom))  
-
-(defmethod render2* :Paulo/page [id data-atom]
-  [:div     (map (fn [id] (render2 id data-atom)  )  (:map (id  data-atom)) )
-])
-
-(defmethod render2* :Paulo/title [id data-atom]
-    [:h1 (:text (id data-atom))
-        ])
-
-(defmethod render2* :Paulo/panel [id data-atom]
-   [:div
-      (map (fn [id] (render2* id data-atom)) (:map (id  data-atom)) )
-     ;"(map (fn [id] (render2 id data-atom) ) (:map (id  data-atom)) )"
-   ])
-
-(defmethod render2* :Paulo/label [id data-atom]
-   [:div  (:text (id  data-atom))  ])
-
- (defmethod render2* :Paulo/line [id data-atom]
-    [:div
-       (map (fn [id] (render2* id data-atom)) (:map (id  data-atom)) )
-
-    ])
-
-(defmethod render2* :Paulo/textbox [id data-atom]
-   [:input   (:text (id  data-atom)) ])
-
-```
+ 
