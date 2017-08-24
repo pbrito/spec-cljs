@@ -46,6 +46,10 @@ Here is my personal opinion about this approach:
 * Pros: Flexible approach with a nice separation between data and systems
 * Cons: Code can get a bit long-winded and tedious at times compared to simpler approaches
 
+
+Lets first try to implement one system.
+In this case arendering system.
+
 ```clojure
 (require '[reagent.core  :as r])
 (require  '[clojure.pprint :refer [pprint]])
@@ -59,21 +63,22 @@ Here is my personal opinion about this approach:
   :Paulo/line {:elements :map}})
 
 
-    (def a-page (r/atom {
-                         :page1    {:graphicL {:type :Paulo/page :map [:title1 :panel1]}}
-                         :title1   {:graphicL {:type :Paulo/title :text "Titulo Paulo"}}
-                         :panel1   {:graphicL {:type :Paulo/panel2 :map [:line1 :line2]}}
-                         :line1    {:graphicL {:type :Paulo/line :map [:label1 :textbox1]}}
-                         :line2    {:graphicL {:type :Paulo/line :map [:label2 :textbox2]}}
-                         :label1   {:graphicL {:type :Paulo/label :text "first name"}}
-                         :textbox1 {:graphicL  {:type :Paulo/textbox :text "1"}
-                                    :buisnessL {:link :person/firstname}}
-                         :label2   {:graphicL {:type :Paulo/label :text "last name"}}
-                         :textbox2 {:graphicL {:type :Paulo/textbox :text ""}
-                                    :buisnessL {:link  :person/lasttname}}}))
+(def a-page (r/atom {
+                     :page1    {:graphicL {:type :Paulo/page :map [:title1 :panel1]}}
+                     :title1   {:graphicL {:type :Paulo/title :text "Titulo Paulo"}}
+                     :panel1   {:graphicL {:type :Paulo/panel :map [:line1 :line2]}}
+                     :line1    {:graphicL {:type :Paulo/line :map [:label1 :textbox1]}}
+                     :line2    {:graphicL {:type :Paulo/line :map [:label2 :textbox2]}}
+                     :label1   {:graphicL {:type :Paulo/label :text "first name"}}
+                     :textbox1 {:graphicL  {:type :Paulo/textbox :text "1"}
+                                :buisnessL {:link :person/firstname}}
+                     :label2   {:graphicL {:type :Paulo/label :text "last name"}}
+                     :textbox2 {:graphicL {:type :Paulo/textbox :text ""}
+                                :buisnessL {:link  :person/lasttname}}}))
 
 ```
 
+render2* only cares about the entities that have a component :graphicL
 
 ```clojure
 (defmulti render2* (fn [id atom]  (:type (:graphicL (id atom)))))
@@ -113,32 +118,19 @@ Here is my personal opinion about this approach:
       
  (defmethod render2* :default [id data-atom]
     [:div
-            [:div
-              [:h1 "OPPS Error"  ]
-              [:h2 (with-out-str (pprint (:type (:graphicL (id data-atom))))) ]  
+            [:div {:style  {:background-color "red"}}
+              [:h1 "OPPS Error at    " id  ]
+              [:h2 (if (= nil (id data-atom)) 
+                       "id not found" 
+                       (with-out-str (print "the type is not implemented " (:type (:graphicL (id data-atom))))) ) ]  
             ]
             [:div
-            
               [:span {:font-weight :bold} "Data Atom"]
               [:code [:pre {:style {:white-space :wrap}}
-                         (with-out-str (pprint data-atom))]]
-                 ]             
-      ]
-       )
+                         (with-out-str (pprint data-atom))]]]])
    
    
 (render2*  :page1 @a-page)
-
-((show a-page
-      (fn [a-pagedata]
-        (render2*  :page1 @a-pagedata))))
-
-
-(defn ^:export run2* []
-   (r/render [(show a-page
-                    (fn [a-pagedata]
-                      (render2*  :page1 @a-pagedata)))]
-              (js/document.getElementById "app")))
 
 
 (defn ^:export run3* []
@@ -147,20 +139,101 @@ Here is my personal opinion about this approach:
               
 
 ;a data example
-(def person-list (r/atom {:id2 {
+(def person-list (r/atom {:id0 {
                                 :person/person
                                     {:person/firstname "Renate"
                                      :person/lastname "Chasman"
                                      :person/birthday "1932-01-10"}
                                } 
-                           :id3 {
+                           :id1 {
                                :person/person
                                    {:person/firstname "Renate"
                                     :person/lastname "Chasman"
                                     :person/birthday "1932-01-10"}
                               }   
+                              :id2 {
+                                  :person/person
+                                      {:person/firstname "Renate"
+                                       :person/lastname "Chasman"
+                                       :person/birthday "1932-01-10"}
+                                 } 
+                             :id3 {
+                                 :person/person
+                                     {:person/firstname "Renate"
+                                      :person/lastname "Chasman"
+                                      :person/birthday "1932-01-10"}
+                                } 
+                            :id4 {
+                                :person/person
+                                    {:person/firstname "Renate"
+                                     :person/lastname "Chasman"
+                                     :person/birthday "1932-01-10"}
+                               } 
+                           :id5 {
+                               :person/person
+                                   {:person/firstname "Renate"
+                                    :person/lastname "Chasman"
+                                    :person/birthday "1932-01-10"}
+                              } 
+                           :id6 {
+                               :person/person
+                                   {:person/firstname "Renate"
+                                    :person/lastname "Chasman"
+                                    :person/birthday "1932-01-10"}
+                              } 
+                          :id7 {
+                              :person/person
+                                  {:person/firstname "Renate"
+                                   :person/lastname "Chasman"
+                                   :person/birthday "1932-01-10"}
+                             } 
+                            
                          }))
                          
+    ;0->n              
+;(take 4 (second (split-at 0 @person-list)))
+ 
+ ;data entities- buiness logic
+ (def dat1 (map (fn[p] {(key p)   {:buinessL (val p)  }} ) (take 4 @person-list)))
+ 
+ 
+;layout
+;(keyword (str "label" k) )
+;graphic enties conected with buiness
+(defn ppil [elem] 
+         (let [
+               k (key (first elem))
+               m (first (vals elem))
+               ]
+            [   
+           {k    
+              (assoc-in 
+                  m 
+                  [:buinessL :graphicL] 
+                  {:type :Paulo/line  :map [(keyword (str "label_" (name k)) )
+                                            (keyword (str "textbox_" (name k)) )
+                                             ] })}
+              {(keyword (str "label_" (name k)) )   {:graphicL {:type :Paulo/label :text "last name"}}}    
+              {(keyword (str "textbox_" (name k)) )  {:graphicL  {:type :Paulo/textbox :text "1"}
+                                                      :buisnessL {:link k}}
+              }      
+             ]       
+                  ))
+                  
+                  
+(ppil (first dat1))
+
+(def bp2 (reduce into {}  (map ppil dat1)))
+
+;(flatten (map ppil dat1))
+
+
+(reduce into {} [{:dog :food} {:cat :chow}])
+;;=> {:dog :food, :cat :chow}
+
+
+
+
                          
 ```
 lets initialize with this data.
@@ -182,6 +255,8 @@ This means generate the UI data.
               :text (str title)}
     }
  )
+ 
+ 
  
 (defn create-panel-data-persons [page data-atom]
 (for [a @person-list] (pprint a))
